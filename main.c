@@ -1,37 +1,39 @@
-/*
- Mood Lamp - oscillates between colors
- */
-#include "config.h"
+#include <avr/io.h>
+#include <util/delay.h>
 
-// each pin corresponds to an LED color:
-int led0 = 10;
-int led1 = 11;
-int led2 = 12;
+#define LED0                10
+#define LED1                11
+#define LED2                12
+#define PI                  3.14159265359
+#define BLINK_DELAY_MS      1000
+#define CPU_PRESCALE(n)     (CLKPR = 0x80, CLKPR = (n))
+#define BRIGHTNESS          1
 
-//declare internal variables
-int brightness = 200;
-int red = 0;
-int blue = 0;
-int green = 0;
+float red;
+float green;
+float blue;
+float x;
 
-int OUTPUT = 1;
-// this routine runs each time you hit the reset button
-void setup() {
-    // declare the relevant pins to be output
-    pinMode(led0, 1);
-    pinMode(led1, 1);
-    pinMode(led2, 1);
-}
-
-void loop() {
-    for ( float x = 0; x < PI; x = x + 0.00004 )
+int main (void)
+{
+    /* set pin 5 of PORTB for output*/
+    DDRB |= _BV(DDB5);
+    x = 1;
+    while(1)
     {
-        // Calculate RGB brightness
-        red = brightness * abs(sin(x*(180/PI)));
-        green = brightness * abs(sin((x+PI/3)*(180/PI)));
-        blue = brightness * abs(sin((x+(2*PI)/3)*(180/PI)));
-        analogWrite(led0, red);
-        analogWrite(led1, green);
-        analogWrite(led2, blue);
+        red = BRIGHTNESS * abs(sin(x*(180/PI)));
+        green = BRIGHTNESS * abs(sin((x+PI/3)*(180/PI)));
+        blue = BRIGHTNESS * abs(sin((x+(2*PI)/3)*(180/PI)));
+        /* set pin 5 high to turn led on */
+        PORTB |= _BV(PORTB5);
+        _delay_ms(BLINK_DELAY_MS);
+
+        /* set pin 5 low to turn led off */
+        PORTB &= ~_BV(PORTB5);
+        _delay_ms(BLINK_DELAY_MS);
+
+        // analogWrite(LED0, red);
+        // analogWrite(LED1, green);
+        // analogWrite(LED2, blue);
     }
 }
